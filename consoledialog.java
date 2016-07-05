@@ -32,14 +32,14 @@ public class consoledialog extends JFrame {
 			@Override
 			public void windowIconified(WindowEvent e) {
 				// TODO Auto-generated method stub
-				
+				Mainclass.frame.setState(JFrame.ICONIFIED);
 				
 			}
 			
 			@Override
 			public void windowDeiconified(WindowEvent e) {
 				// TODO Auto-generated method stub
-				
+				Mainclass.frame.setState(JFrame.NORMAL);
 			}
 			
 			@Override

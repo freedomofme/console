@@ -1,7 +1,10 @@
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
@@ -13,6 +16,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -26,7 +30,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class Mainclass implements ActionListener,KeyListener,WindowListener{
-    JFrame frame;
+    static JFrame frame;
     JScrollPane scoll;
     JTextArea area;
     Thread runthread;
@@ -45,6 +49,34 @@ public class Mainclass implements ActionListener,KeyListener,WindowListener{
 	public  void mainclass() {
 		// TODO Auto-generated constructor stub
 		frame=new JFrame("java编辑器");
+		frame.addComponentListener(new ComponentListener() {
+			
+			@Override
+			public void componentShown(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void componentResized(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				Rectangle rect=frame.getBounds();
+				dia.setLocation(rect.x-200, rect.y);
+				
+			}
+			
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				// TODO Auto-generated method stub
+				dia.setState(JFrame.ICONIFIED);
+			}
+		});
 		frame.addWindowListener(this);
 	    dia=new consoledialog();
 		button4=new JButton[100];
@@ -77,7 +109,7 @@ public class Mainclass implements ActionListener,KeyListener,WindowListener{
 		if(e.getSource()==button3)
 		{
 			String str=JOptionPane.showInputDialog(null, "请输入java文件名", "文件建立窗口", JOptionPane.PLAIN_MESSAGE);
-			System.out.println(str+"shfslf");
+			//System.out.println(str+"shfslf");
 			if(str==null)
 			{
 				str="s";
@@ -93,6 +125,59 @@ public class Mainclass implements ActionListener,KeyListener,WindowListener{
 			}
 			else
 			{
+				String areaword=area.getText();
+				if(!areaword.equals(""))
+				{
+					areaword=areaword.substring(area.getText().indexOf("s")+3, area.getText().indexOf("\n"));
+					System.out.println(areaword);
+					File file=new File(areaword+".txt");
+					BufferedWriter writer=null;
+					if(file.exists())
+					{
+						try {
+							writer=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
+							String result=area.getText();
+							String[] temp2=result.split("[\\r\\n]");
+							System.out.println(temp2[0]);
+							for (int i = 0; i < temp2.length; i++) {
+								StringBuffer buf=new StringBuffer(temp2[i]);
+								int t=0;
+								while(buf.indexOf("“", t)!=-1)
+								{
+									buf.replace(buf.indexOf("“", t),buf.indexOf("“", t)+1,"\"");
+									t=buf.indexOf("“", t)+1;
+								}
+								t=0;
+								while(buf.indexOf("”", t)!=-1)
+								{
+									buf.replace(buf.indexOf("”", t),buf.indexOf("”", t)+1,"\"");
+									t=buf.indexOf("“", t)+1;
+								}
+								while(buf.indexOf("（", t)!=-1)
+								{
+									buf.replace(buf.indexOf("（", t),buf.indexOf("（", t)+1,"(");
+									t=buf.indexOf("（", t)+1;
+								}
+								while(buf.indexOf("）", t)!=-1)
+								{
+									buf.replace(buf.indexOf("）", t),buf.indexOf("）", t+1),")");
+									t=buf.indexOf(")", t)+1;
+								}
+								writer.write(buf.toString());
+								writer.write("\r\n");
+								}
+							writer.close();
+							
+						} catch (FileNotFoundException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+					
+				}
 				area.setText("public class"+" "+str+"\n"+"{"+"\n"+"}");
 				String str2=str+".txt";
 				str3=str2;
@@ -148,7 +233,30 @@ public class Mainclass implements ActionListener,KeyListener,WindowListener{
 						String[] temp=str4.split("[\\r\\n]");
 						System.out.println(temp[0]);
 						for (int i = 0; i < temp.length; i++) {
-							bos.write(temp[i]);
+							StringBuffer buf=new StringBuffer(temp[i]);
+							int t=0;
+							while(buf.indexOf("“", t)!=-1)
+							{
+								buf.replace(buf.indexOf("“", t),buf.indexOf("“", t)+1,"\"");
+								t=buf.indexOf("“", t)+1;
+							}
+							t=0;
+							while(buf.indexOf("”", t)!=-1)
+							{
+								buf.replace(buf.indexOf("”", t),buf.indexOf("”", t)+1,"\"");
+								t=buf.indexOf("“", t)+1;
+							}
+							while(buf.indexOf("（", t)!=-1)
+							{
+								buf.replace(buf.indexOf("（", t),buf.indexOf("（", t)+1,"(");
+								t=buf.indexOf("（", t)+1;
+							}
+							while(buf.indexOf("）", t)!=-1)
+							{
+								buf.replace(buf.indexOf("）", t),buf.indexOf("）", t+1),")");
+								t=buf.indexOf(")", t)+1;
+							}
+							bos.write(buf.toString());
 							bos.write("\r\n");
 							}
 						bos.close();
@@ -164,7 +272,7 @@ public class Mainclass implements ActionListener,KeyListener,WindowListener{
 						InputStream in=process.getErrorStream();
 						BufferedInputStream bin=new BufferedInputStream(in);
 						int n;
-						boolean bn=true;
+						boolean bn=true; 
 						byte error[]=new byte[100];
 						while((n=in.read(error,0,100))!=-1)
 						{
@@ -291,22 +399,34 @@ public class Mainclass implements ActionListener,KeyListener,WindowListener{
 				        if(i == JOptionPane.YES_OPTION)
 				        {
 				        	System.out.println(Mainclass.flag);
+				        	File Classfile=new File(".");
+				            String classfile[]=	Classfile.list(new FilenameFilter() {
+								
+								@Override
+								public boolean accept(File dir, String name) {
+									// TODO Auto-generated method stub
+									return name.endsWith(".class");
+								}
+							});
+				            for(String name:classfile)
+				            {
+				            	File files=new File(name);
+				            	if(files.exists())
+				            	{
+				            		files.delete();
+				            	}
+				            }
 				        	for(int j=0;j<Mainclass.flag;j++)
 				        	{
 				        		File file3=new File(Mainclass.button4[j].getText().substring(0, Mainclass.button4[j].getText().indexOf('.'))+".txt");
 				        		if(file3.exists())
 				        		{
-				        			file3.exists();
+				        			file3.delete();
 				        		}
 				        		File file=new File(Mainclass.button4[j].getText());
 				        		if(file.exists())
 				        		{
 				        			file.delete();
-				        		}
-				        		File file2=new File(Mainclass.button4[j].getText().substring(0, Mainclass.button4[j].getText().indexOf('.'))+".class");
-				        		if(file2.exists())
-				        		{
-				        			file2.delete();
 				        		}
 				        	}
 				        	System.exit(0);
@@ -323,12 +443,12 @@ public class Mainclass implements ActionListener,KeyListener,WindowListener{
 	@Override
 	public void windowIconified(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
+		dia.setState(JFrame.ICONIFIED);
 	}
 	@Override
 	public void windowDeiconified(WindowEvent e) {
 		// TODO Auto-generated method stub
-		
+		dia.setState(JFrame.NORMAL);
 	}
 	@Override
 	public void windowActivated(WindowEvent e) {
